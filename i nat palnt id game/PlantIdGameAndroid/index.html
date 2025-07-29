@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plant ID Game</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Plant ID Game</h1>
+            <div class="game-stats">
+                <div class="score-display">
+                    <div class="score-label">Score</div>
+                    <div class="score-value" id="score">0</div>
+                </div>
+                <div class="lives-display">
+                    <div class="lives-label">Lives</div>
+                    <div class="lives-hearts" id="lives-hearts">
+                        <span>❤️</span><span>❤️</span><span>❤️</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+        
+        <main class="game-area">
+            <div class="image-section">
+                <button class="nav-btn prev-btn" id="prev-btn">‹</button>
+                <img id="plant-image" src="" alt="Plant image" class="plant-image">
+                <button class="nav-btn next-btn" id="next-btn">›</button>
+                <div class="photo-counter" id="photo-counter"></div>
+            </div>
+            
+            <div class="options-section">
+                <div class="options-grid">
+                    <button class="option-btn" data-key="1">1. Loading...</button>
+                    <button class="option-btn" data-key="2">2. Loading...</button>
+                    <button class="option-btn" data-key="3">3. Loading...</button>
+                    <button class="option-btn" data-key="4">4. Loading...</button>
+                </div>
+            </div>
+            
+            <div class="feedback-section">
+                <div id="feedback" class="feedback"></div>
+            </div>
+        </main>
+        
+        <aside class="study-section">
+            <div class="study-header">
+                <h2>Study List</h2>
+                <div class="study-count" id="study-count">0 plants to review</div>
+            </div>
+            <ul id="study-list" class="study-list"></ul>
+        </aside>
+    </div>
+    
+    <div class="game-over-overlay" id="game-over-overlay">
+        <div class="game-over-content">
+            <h2 class="game-over-title">Game Over</h2>
+            <p class="final-score-label">Your Final Score</p>
+            <div class="final-score-value" id="final-score">0</div>
+            <button class="restart-btn" id="restart-btn">Play Again</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html> 
