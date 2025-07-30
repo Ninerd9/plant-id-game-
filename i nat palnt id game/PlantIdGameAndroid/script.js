@@ -58,16 +58,56 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 if (taxon) {
-                    const photo = await fetch(`https://api.inaturalist.org/v1/taxa/${taxon.id}`);
-                    const photoData = await photo.json();
+                    // Fetch both taxon photos and observation photos for more variety
+                    const [taxonResponse, observationsResponse] = await Promise.all([
+                        fetch(`https://api.inaturalist.org/v1/taxa/${taxon.id}`),
+                        fetch(`https://api.inaturalist.org/v1/observations?taxon_id=${taxon.id}&quality_grade=research&photo_license=any&per_page=20&order=desc&order_by=votes`)
+                    ]);
+                    
+                    const taxonData = await taxonResponse.json();
+                    const observationsData = await observationsResponse.json();
 
-                    if (photoData.results && photoData.results[0].taxon_photos) {
-                        const photos = photoData.results[0].taxon_photos.map(p => p.photo.medium_url);
+                    let photos = [];
+                    
+                    // Get taxon photos (usually high quality reference photos)
+                    if (taxonData.results && taxonData.results[0] && taxonData.results[0].taxon_photos) {
+                        const taxonPhotos = taxonData.results[0].taxon_photos.map(p => ({
+                            url: p.photo.medium_url,
+                            large_url: p.photo.large_url || p.photo.medium_url,
+                            viewType: categorizePhoto(p.photo.medium_url, 'taxon'),
+                            source: 'reference'
+                        }));
+                        photos.push(...taxonPhotos);
+                    }
+                    
+                    // Get observation photos (more variety, different angles)
+                    if (observationsData.results) {
+                        const observationPhotos = observationsData.results
+                            .filter(obs => obs.photos && obs.photos.length > 0)
+                            .slice(0, 15) // Limit to prevent too many photos
+                            .flatMap(obs => obs.photos.map(photo => ({
+                                url: photo.url.replace('square', 'medium'),
+                                large_url: photo.url.replace('square', 'large'),
+                                viewType: categorizePhoto(photo.url, 'observation'),
+                                source: 'observation'
+                            })));
+                        photos.push(...observationPhotos);
+                    }
+
+                    // Remove duplicates and organize by view type
+                    const uniquePhotos = Array.from(
+                        new Map(photos.map(p => [p.url, p])).values()
+                    );
+                    
+                    // Prioritize diverse view types
+                    const organizedPhotos = organizePhotosByViewType(uniquePhotos);
+
+                    if (organizedPhotos.length > 0) {
                         return {
                             id: taxon.id,
                             scientificName: taxon.name,
                             commonName: taxon.preferred_common_name,
-                            images: photos.slice(0, 5), // Get up to 5 photos
+                            images: organizedPhotos.slice(0, 12), // Limit to 12 photos max
                         };
                     }
                 }
@@ -87,6 +127,50 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             updateFeedback('Could not load plant data. Please check your connection.', 'error');
         }
+    }
+
+    function categorizePhoto(photoUrl, source) {
+        // Simple heuristic to categorize photos based on URL patterns and source
+        const url = photoUrl.toLowerCase();
+        
+        // More sophisticated categorization could be added here
+        // For now, we'll use a rotation system with bias toward different types
+        const types = ['whole_plant', 'flower', 'leaf', 'bark', 'fruit', 'habitat'];
+        const hash = photoUrl.split('').reduce((a, b) => {
+            a = ((a << 5) - a) + b.charCodeAt(0);
+            return a & a;
+        }, 0);
+        
+        return types[Math.abs(hash) % types.length];
+    }
+
+    function organizePhotosByViewType(photos) {
+        // Group photos by view type
+        const grouped = photos.reduce((acc, photo) => {
+            if (!acc[photo.viewType]) acc[photo.viewType] = [];
+            acc[photo.viewType].push(photo);
+            return acc;
+        }, {});
+        
+        // Ensure we have a good mix of view types
+        const organized = [];
+        const viewTypes = ['whole_plant', 'flower', 'leaf', 'bark', 'fruit', 'habitat'];
+        
+        // Add one photo from each view type first (if available)
+        viewTypes.forEach(type => {
+            if (grouped[type] && grouped[type].length > 0) {
+                organized.push(grouped[type].shift());
+            }
+        });
+        
+        // Add remaining photos
+        viewTypes.forEach(type => {
+            if (grouped[type]) {
+                organized.push(...grouped[type]);
+            }
+        });
+        
+        return organized;
     }
 
     function startNewRound() {
@@ -121,11 +205,35 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function displayCurrentPhoto() {
-        plantImage.src = currentPlant.images[currentPhotoIndex];
-        photoCounter.textContent = `${currentPhotoIndex + 1} / ${currentPlant.images.length}`;
+        const currentPhoto = currentPlant.images[currentPhotoIndex];
+        plantImage.src = currentPhoto.url || currentPhoto;
+        plantImage.onerror = function() {
+            // Fallback to large_url if medium fails
+            if (currentPhoto.large_url && this.src !== currentPhoto.large_url) {
+                this.src = currentPhoto.large_url;
+            }
+        };
+        
+        photoCounter.innerHTML = `
+            <span class="photo-number">${currentPhotoIndex + 1} / ${currentPlant.images.length}</span>
+            ${currentPhoto.viewType ? `<span class="view-type">${formatViewType(currentPhoto.viewType)}</span>` : ''}
+        `;
+        
         prevBtn.style.display = currentPlant.images.length > 1 ? 'flex' : 'none';
         nextBtn.style.display = currentPlant.images.length > 1 ? 'flex' : 'none';
         photoCounter.style.display = currentPlant.images.length > 1 ? 'block' : 'none';
+    }
+
+    function formatViewType(viewType) {
+        const typeMap = {
+            'whole_plant': '🌿 Whole Plant',
+            'flower': '🌸 Flower',
+            'leaf': '🍃 Leaf',
+            'bark': '🌲 Bark',
+            'fruit': '🫐 Fruit',
+            'habitat': '🏞️ Habitat'
+        };
+        return typeMap[viewType] || '📷 View';
     }
 
     function getOptions(correctPlant) {
