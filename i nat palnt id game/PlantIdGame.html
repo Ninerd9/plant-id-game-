@@ -90,63 +90,138 @@
 
         .image-section {
             margin-bottom: 2rem;
+        }
+
+        .image-container {
             position: relative;
+            background: white;
+            border-radius: 20px;
+            padding: 1rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 300px;
         }
 
-        .plant-image {
-            width: 100%;
-            height: 300px;
-            object-fit: cover;
-            border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-            transition: transform 0.3s ease;
-        }
-
-        .plant-image:hover {
-            transform: scale(1.02);
+        .plant-image, #plant-image {
+            max-width: 100%;
+            max-height: 400px;
+            object-fit: contain;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
         }
 
         .nav-btn {
             position: absolute;
             top: 50%;
             transform: translateY(-50%);
-            background: rgba(0, 0, 0, 0.5);
-            color: white;
+            background: rgba(255, 255, 255, 0.9);
             border: none;
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            font-size: 2rem;
             cursor: pointer;
-            transition: background 0.3s ease;
             display: flex;
-            justify-content: center;
             align-items: center;
-            line-height: 1;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transition: all 0.2s ease;
+            z-index: 10;
         }
 
         .nav-btn:hover {
-            background: rgba(0, 0, 0, 0.8);
+            background: #667eea;
+            color: white;
+            transform: translateY(-50%) scale(1.1);
         }
 
         .prev-btn {
-            left: 10px;
+            left: 1rem;
         }
 
         .next-btn {
-            right: 10px;
+            right: 1rem;
         }
 
         .photo-counter {
             position: absolute;
-            bottom: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.6);
+            top: 1rem;
+            right: 1rem;
+            background: rgba(0, 0, 0, 0.7);
             color: white;
-            padding: 5px 10px;
-            border-radius: 10px;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
             font-size: 0.875rem;
+            font-weight: 500;
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+            min-width: 120px;
+        }
+
+        .photo-number {
+            font-weight: 600;
+        }
+
+        .view-type {
+            font-size: 0.75rem;
+            opacity: 0.9;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.2rem 0.5rem;
+            border-radius: 10px;
+            white-space: nowrap;
+        }
+
+        .view-type-filters {
+            display: flex;
+            gap: 0.5rem;
+            margin: 1rem 0;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .view-type-btn {
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid #e2e8f0;
+            border-radius: 20px;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #2d3748;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .view-type-btn:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+            transform: translateY(-1px);
+        }
+
+        .view-type-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .view-type-btn.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .view-type-btn.disabled:hover {
+            background: rgba(255, 255, 255, 0.9);
+            color: #2d3748;
+            border-color: #e2e8f0;
+            transform: none;
         }
 
         .options-section {
@@ -427,10 +502,28 @@
         
         <main class="game-area">
             <div class="image-section">
-                <button class="nav-btn prev-btn" id="prev-btn">‹</button>
-                <img id="plant-image" src="" alt="Plant image" class="plant-image">
-                <button class="nav-btn next-btn" id="next-btn">›</button>
-                <div class="photo-counter" id="photo-counter"></div>
+                <div class="image-container">
+                    <img id="plant-image" src="" alt="Plant to identify" loading="lazy">
+                    <div id="photo-counter" class="photo-counter">1 / 1</div>
+                    <button id="prev-btn" class="nav-btn prev-btn" style="display: none;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="15,18 9,12 15,6"></polyline>
+                        </svg>
+                    </button>
+                    <button id="next-btn" class="nav-btn next-btn" style="display: none;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="9,18 15,12 9,6"></polyline>
+                        </svg>
+                    </button>
+                </div>
+                <div class="view-type-filters" id="view-type-filters" style="display: none;">
+                    <button class="view-type-btn" data-view-type="whole_plant">🌿 Whole Plant</button>
+                    <button class="view-type-btn" data-view-type="flower">🌸 Flower</button>
+                    <button class="view-type-btn" data-view-type="leaf">🍃 Leaf</button>
+                    <button class="view-type-btn" data-view-type="bark">🌲 Bark</button>
+                    <button class="view-type-btn" data-view-type="fruit">🫐 Fruit</button>
+                    <button class="view-type-btn" data-view-type="habitat">🏞️ Habitat</button>
+                </div>
             </div>
             
             <div class="options-section">
@@ -526,16 +619,56 @@
                         }
 
                         if (taxon) {
-                            const photo = await fetch(`https://api.inaturalist.org/v1/taxa/${taxon.id}`);
-                            const photoData = await photo.json();
+                            // Fetch both taxon photos and observation photos for more variety
+                            const [taxonResponse, observationsResponse] = await Promise.all([
+                                fetch(`https://api.inaturalist.org/v1/taxa/${taxon.id}`),
+                                fetch(`https://api.inaturalist.org/v1/observations?taxon_id=${taxon.id}&quality_grade=research&photo_license=any&per_page=20&order=desc&order_by=votes`)
+                            ]);
+                            
+                            const taxonData = await taxonResponse.json();
+                            const observationsData = await observationsResponse.json();
 
-                            if (photoData.results && photoData.results[0].taxon_photos) {
-                                const photos = photoData.results[0].taxon_photos.map(p => p.photo.medium_url);
+                            let photos = [];
+                            
+                            // Get taxon photos (usually high quality reference photos)
+                            if (taxonData.results && taxonData.results[0] && taxonData.results[0].taxon_photos) {
+                                const taxonPhotos = taxonData.results[0].taxon_photos.map(p => ({
+                                    url: p.photo.medium_url,
+                                    large_url: p.photo.large_url || p.photo.medium_url,
+                                    viewType: categorizePhoto(p.photo.medium_url, 'taxon'),
+                                    source: 'reference'
+                                }));
+                                photos.push(...taxonPhotos);
+                            }
+                            
+                            // Get observation photos (more variety, different angles)
+                            if (observationsData.results) {
+                                const observationPhotos = observationsData.results
+                                    .filter(obs => obs.photos && obs.photos.length > 0)
+                                    .slice(0, 15) // Limit to prevent too many photos
+                                    .flatMap(obs => obs.photos.map(photo => ({
+                                        url: photo.url.replace('square', 'medium'),
+                                        large_url: photo.url.replace('square', 'large'),
+                                        viewType: categorizePhoto(photo.url, 'observation'),
+                                        source: 'observation'
+                                    })));
+                                photos.push(...observationPhotos);
+                            }
+
+                            // Remove duplicates and organize by view type
+                            const uniquePhotos = Array.from(
+                                new Map(photos.map(p => [p.url, p])).values()
+                            );
+                            
+                            // Prioritize diverse view types
+                            const organizedPhotos = organizePhotosByViewType(uniquePhotos);
+
+                            if (organizedPhotos.length > 0) {
                                 return {
                                     id: taxon.id,
                                     scientificName: taxon.name,
                                     commonName: taxon.preferred_common_name,
-                                    images: photos.slice(0, 5), // Get up to 5 photos
+                                    images: organizedPhotos.slice(0, 12), // Limit to 12 photos max
                                 };
                             }
                         }
@@ -569,13 +702,7 @@
                     currentPlant = plantData[Math.floor(Math.random() * plantData.length)];
                 }
 
-                if (!currentPlant) {
-                    console.error("Could not select a plant for the new round.");
-                    updateFeedback('Error: Could not start a new round.', 'error');
-                    return;
-                }
-                
-                currentPhotoIndex = 0;
+                currentPhotoIndex = 0; // Reset to first photo
                 displayCurrentPhoto();
 
                 const options = getOptions(currentPlant);
@@ -589,11 +716,38 @@
             }
 
             function displayCurrentPhoto() {
-                plantImage.src = currentPlant.images[currentPhotoIndex];
-                photoCounter.textContent = `${currentPhotoIndex + 1} / ${currentPlant.images.length}`;
+                const currentPhoto = currentPlant.images[currentPhotoIndex];
+                plantImage.src = currentPhoto.url || currentPhoto;
+                plantImage.onerror = function() {
+                    // Fallback to large_url if medium fails
+                    if (currentPhoto.large_url && this.src !== currentPhoto.large_url) {
+                        this.src = currentPhoto.large_url;
+                    }
+                };
+                
+                photoCounter.innerHTML = `
+                    <span class="photo-number">${currentPhotoIndex + 1} / ${currentPlant.images.length}</span>
+                    ${currentPhoto.viewType ? `<span class="view-type">${formatViewType(currentPhoto.viewType)}</span>` : ''}
+                `;
+                
                 prevBtn.style.display = currentPlant.images.length > 1 ? 'flex' : 'none';
                 nextBtn.style.display = currentPlant.images.length > 1 ? 'flex' : 'none';
                 photoCounter.style.display = currentPlant.images.length > 1 ? 'block' : 'none';
+                
+                // Update view type buttons if they exist
+                updateViewTypeButtons();
+            }
+
+            function formatViewType(viewType) {
+                const typeMap = {
+                    'whole_plant': '🌿 Whole Plant',
+                    'flower': '🌸 Flower',
+                    'leaf': '🍃 Leaf',
+                    'bark': '🌲 Bark',
+                    'fruit': '🫐 Fruit',
+                    'habitat': '🏞️ Habitat'
+                };
+                return typeMap[viewType] || '📷 View';
             }
 
             function getOptions(correctPlant) {
@@ -726,6 +880,94 @@
                 }
             }
 
+            function categorizePhoto(photoUrl, source) {
+                // Simple heuristic to categorize photos based on URL patterns and source
+                const url = photoUrl.toLowerCase();
+                
+                // More sophisticated categorization could be added here
+                // For now, we'll use a rotation system with bias toward different types
+                const types = ['whole_plant', 'flower', 'leaf', 'bark', 'fruit', 'habitat'];
+                const hash = photoUrl.split('').reduce((a, b) => {
+                    a = ((a << 5) - a) + b.charCodeAt(0);
+                    return a & a;
+                }, 0);
+                
+                return types[Math.abs(hash) % types.length];
+            }
+
+            function organizePhotosByViewType(photos) {
+                // Group photos by view type
+                const grouped = photos.reduce((acc, photo) => {
+                    if (!acc[photo.viewType]) acc[photo.viewType] = [];
+                    acc[photo.viewType].push(photo);
+                    return acc;
+                }, {});
+                
+                // Ensure we have a good mix of view types
+                const organized = [];
+                const viewTypes = ['whole_plant', 'flower', 'leaf', 'bark', 'fruit', 'habitat'];
+                
+                // Add one photo from each view type first (if available)
+                viewTypes.forEach(type => {
+                    if (grouped[type] && grouped[type].length > 0) {
+                        organized.push(grouped[type].shift());
+                    }
+                });
+                
+                // Add remaining photos
+                viewTypes.forEach(type => {
+                    if (grouped[type]) {
+                        organized.push(...grouped[type]);
+                    }
+                });
+                
+                return organized;
+            }
+
+            function updateViewTypeButtons() {
+                const viewTypeFilters = document.getElementById('view-type-filters');
+                const viewTypeButtons = document.querySelectorAll('.view-type-btn');
+                
+                if (!currentPlant || !currentPlant.images) return;
+                
+                // Show view type filters if there are multiple photos
+                if (currentPlant.images.length > 1) {
+                    viewTypeFilters.style.display = 'flex';
+                    
+                    // Get available view types for current plant
+                    const availableViewTypes = new Set(
+                        currentPlant.images
+                            .map(img => img.viewType)
+                            .filter(type => type)
+                    );
+                    
+                    // Update button states
+                    viewTypeButtons.forEach(btn => {
+                        const viewType = btn.dataset.viewType;
+                        const hasType = availableViewTypes.has(viewType);
+                        
+                        btn.classList.toggle('disabled', !hasType);
+                        btn.disabled = !hasType;
+                        
+                        // Check if current photo matches this view type
+                        const currentPhoto = currentPlant.images[currentPhotoIndex];
+                        btn.classList.toggle('active', currentPhoto.viewType === viewType);
+                    });
+                } else {
+                    viewTypeFilters.style.display = 'none';
+                }
+            }
+
+            function jumpToViewType(targetViewType) {
+                if (!currentPlant || !currentPlant.images) return;
+                
+                const targetIndex = currentPlant.images.findIndex(img => img.viewType === targetViewType);
+                if (targetIndex !== -1 && targetIndex !== currentPhotoIndex) {
+                    currentPhotoIndex = targetIndex;
+                    displayCurrentPhoto();
+                }
+            }
+
             prevBtn.addEventListener('click', () => {
                 if (currentPhotoIndex > 0) {
                     currentPhotoIndex--;
@@ -756,6 +998,16 @@
             });
 
             restartBtn.addEventListener('click', restartGame);
+
+            // Add event listeners for view type buttons
+            const viewTypeButtons = document.querySelectorAll('.view-type-btn');
+            viewTypeButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    if (!btn.disabled) {
+                        jumpToViewType(btn.dataset.viewType);
+                    }
+                });
+            });
 
             // Initialize the game
             updateStudyList();
